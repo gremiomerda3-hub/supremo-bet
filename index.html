@@ -1,18 +1,189 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Supremo Bet</title>
-  <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<title>GKSBET – Roda de Coins</title>
+
+<style>
+body{
+  font-family:Arial;
+  background:#111;
+  color:#fff;
+  text-align:center;
+  padding-top:40px
+}
+#wheel{
+  width:300px;
+  height:300px;
+  border-radius:50%;
+  background:conic-gradient(
+    #e74c3c 0deg 60deg,
+    #f1c40f 60deg 120deg,
+    #2ecc71 120deg 180deg,
+    #3498db 180deg 240deg,
+    #9b59b6 240deg 300deg,
+    #e74c3c 300deg 360deg
+  );
+  margin:20px auto;
+  transition:transform 3s ease-out
+}
+button{
+  padding:12px 24px;
+  font-size:18px;
+  cursor:pointer;
+  margin:6px
+}
+#saldo{
+  font-size:28px;
+  margin:20px
+}
+#adminPanel{
+  display:none;
+  background:#222;
+  padding:20px;
+  margin:20px auto;
+  width:340px;
+  border-radius:8px
+}
+input{
+  width:90px;
+  padding:4px;
+  margin-top:4px
+}
+small{color:#bbb}
+</style>
 </head>
+
 <body>
 
-<h1>SUPREMO BET</h1>
+<h1>GKSBET</h1>
+<small>Jogo fictício para entretenimento • Coins não possuem valor real</small>
 
-<input id="user" placeholder="Usuário">
-<input id="pass" type="password" placeholder="Senha">
-<button onclick="login()">Entrar</button>
+<div id="saldo">Coins: <span id="s">0</span></div>
 
-<script src="js/auth.js"></script>
+<button onclick="girar()">🎯 Girar</button>
+
+<div id="wheel"></div>
+<p id="result"></p>
+
+<hr style="width:300px;border-color:#333">
+
+<button onclick="toggleAdmin()">🔧 Admin</button>
+
+<div id="adminPanel">
+  <h3>Admin – Gremiis</h3>
+
+  <label>Aposta (Coins)<br>
+    <input id="admAposta" type="number">
+  </label><br><br>
+
+  <label>Retorno (ex: 1.2)<br>
+    <input id="admRetorno" type="number" step="0.1">
+  </label><br><br>
+
+  <label>Chance de Ganho (%)<br>
+    <input id="admChance" type="number">
+  </label><br><br>
+
+  <label>Bônus (Coins)<br>
+    <input id="admBonus" type="number">
+  </label><br><br>
+
+  <button onclick="salvarConfig()">💾 Salvar Config</button><br><br>
+  <button onclick="addBonus()">➕ Dar Bônus</button>
+  <button onclick="zerarSaldo()">♻️ Zerar Saldo</button>
+</div>
+
+<script>
+/* ===== ADMIN ===== */
+const ADM_KEY = 'Sintia1404+';
+
+/* ===== CONFIGURAÇÃO PADRÃO ===== */
+let config = JSON.parse(localStorage.getItem('config')) || {
+  aposta: 50,
+  retorno: 1.2,
+  chance: 0.45,
+  bonus: 200
+};
+
+/* ===== SALDO ===== */
+let s = localStorage.getItem('coins')
+  ? parseInt(localStorage.getItem('coins'))
+  : 0;
+
+atualizarSaldo();
+carregarAdmin();
+
+/* ===== FUNÇÕES ===== */
+function atualizarSaldo(){
+  document.getElementById('s').innerText = s;
+}
+
+function girar(){
+  if(s < config.aposta){
+    alert('Coins insuficientes.');
+    return;
+  }
+
+  s -= config.aposta;
+  atualizarSaldo();
+
+  let giro = Math.floor(Math.random()*360 + 720);
+  document.getElementById('wheel').style.transform =
+    `rotate(${giro}deg)`;
+
+  setTimeout(()=>{
+    if(Math.random() < config.chance){
+      let ganho = Math.floor(config.aposta * config.retorno);
+      s += ganho;
+      result.innerText = `🎉 Você ganhou ${ganho} Coins`;
+    } else {
+      result.innerText = `❌ Você perdeu ${config.aposta} Coins`;
+    }
+
+    localStorage.setItem('coins', s);
+    atualizarSaldo();
+  },3000);
+}
+
+function toggleAdmin(){
+  let pw = prompt('Senha do Admin:');
+  if(pw === ADM_KEY){
+    adminPanel.style.display = 'block';
+  } else {
+    alert('Senha incorreta.');
+  }
+}
+
+function salvarConfig(){
+  config.aposta = parseInt(admAposta.value);
+  config.retorno = parseFloat(admRetorno.value);
+  config.chance = parseInt(admChance.value) / 100;
+  config.bonus = parseInt(admBonus.value);
+
+  localStorage.setItem('config', JSON.stringify(config));
+  alert('Configurações salvas com sucesso!');
+}
+
+function carregarAdmin(){
+  admAposta.value = config.aposta;
+  admRetorno.value = config.retorno;
+  admChance.value = config.chance * 100;
+  admBonus.value = config.bonus;
+}
+
+function addBonus(){
+  s += config.bonus;
+  localStorage.setItem('coins', s);
+  atualizarSaldo();
+}
+
+function zerarSaldo(){
+  s = 0;
+  localStorage.setItem('coins', s);
+  atualizarSaldo();
+}
+</script>
+
 </body>
 </html>
