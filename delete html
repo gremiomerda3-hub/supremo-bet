@@ -1,1 +1,4 @@
 
+git rm index.html
+git commit -m "Remove delete html"
+git push
