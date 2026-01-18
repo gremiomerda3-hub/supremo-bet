@@ -1,11 +1,16 @@
-function login() {
-  const u = document.getElementById("user").value;
-  const p = document.getElementById("pass").value;
+const ADMIN = {
+  user: "Gremiis",
+  pass: "Sintia1404+"
+};
 
-  if (u === "Gremiis" && p === "Sintia1404+") {
-    localStorage.setItem("logado", "true");
-    window.location.href = "home.html";
+function login() {
+  const u = document.getElementById("user").value.trim();
+  const p = document.getElementById("pass").value.trim();
+
+  if (u === ADMIN.user && p === ADMIN.pass) {
+    localStorage.setItem("admin", "true");
+    window.location.href = "admin.html";
   } else {
-    alert("Login inválido");
+    alert("Acesso negado");
   }
 }
